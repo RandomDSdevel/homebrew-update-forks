@@ -1,0 +1,27 @@
+# Adapted from <https://github.com/github/gitignore/blob/2bb963b16a1957c865335e53537036c2e97399b5/Global/macOS.gitignore>.  
+
+## General
+.DS_Store
+.AppleDouble
+.LSOverride
+### 'Icon' must end with two carriage returns.  
+Icon
+
+## Thumbnails
+._*
+
+## Files that might appear inside a volume's root directory:  
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+
+## Directories potentially created on remote AFP shares:  
+.AppleDB
+.AppleDesktop
+network Trash Folder
+Temporary Items
+.apdisk
