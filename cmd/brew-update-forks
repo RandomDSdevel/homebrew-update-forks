@@ -15,6 +15,10 @@
 #:
 #:    Warning:  Only tested on macOS.  
 
+# A single script-specific variable used even in the code that immediately fol-
+# lows it:  
+ellipsis='\xE2\x80\xA6'
+
 # Code and function definitions taken from within # `brew`'s implementation and 
 # adapted for use in this script begin(s) here.  
 set +o posix
@@ -42,9 +46,9 @@ odie() {
 }
 
 safe_cd() {
-  cd "$@" >/dev/null || odie <<~EOS
-    Failed to change directories to \`$*\`!  Aborting…
-  EOS
+  cd "$@" >/dev/null || odie <<EOS
+Failed to change directories to \`$*\`!  Aborting
+EOS
 }
 
 ## Cache where Git's executable lives to speed things up when using Git 
@@ -60,44 +64,45 @@ git() {
 # Script-local functions…
 check_number_of_git_remotes() {
   if [[ -n "$HOMEBREW_VERBOSE" ]]; then
-    echo "Checking for the existence of a single non-\`origin\` remote…"
+    echo "Checking for the existence of a single non-\`origin\` remote$ellipsis"
   fi
-  local number_of_git_remotes="$(git remote | wc -l)"
+  local number_of_git_remotes
+  number_of_git_remotes="$(git remote | wc -l)"
   local status
   if [[ number_of_git_remotes -lt 2 ]]; then
     if [[ -n "$HOMEBREW_VERBOSE" ]]; then
-      onoe <<~EOS
-        No remotes other than \`origin\` to push to!  
-      EOS
+      onoe <<EOS
+No remotes other than \`origin\` to push to!  
+EOS
     fi
-    status=-1
+    status=1
   fi
   if [[ number_of_git_remotes -gt 2 ]]; then
     if [[ -n "$HOMEBREW_VERBOSE" ]]; then
-      onoe <<~EOS
-        The choice of non-\`origin\` remote is ambiguous due to the presence of 
-        too many remotes.  
-      EOS
+      onoe <<EOS
+The choice of non-\`origin\` remote is ambiguous due to the presence of too many 
+remotes.  
+EOS
     fi
-    status=-2
+    status=2
   fi
-  return "$status"
+  return $status
 }
 
-push_designated_branches_to_personal_fork_of_active_repository
+push_designated_branches_to_personal_fork_of_active_repository() {
   local git_remote_to_use
   local git_push_verbosity_args
 
-  [[ -d "$DIR/.git" ]] || return -1
+  [[ -d "$DIR/.git" ]] || return 1
   if [[ -n "$HOMEBREW_VERBOSE" ]]; then
-    echo "Changing to \`$DIR\`…"
+    echo "Changing to \`$DIR\`$ellipsis"
   fi
-  cd "$DIR" || return -1
+  cd "$DIR" || return 1
   check_number_of_git_remotes || {
                                    if [[ -n "$HOMEBREW_VERBOSE" ]]; then
-                                     echo "Skipping…"
+                                     echo "Skipping$ellipsis"
                                    fi
-                                   return -1
+                                   return 1
                                  }
   git_remote_to_use="$(git remote | grep --invert-match "origin")"
   if [[ -n "$QUIET_ARGS" ]]; then
@@ -105,13 +110,13 @@ push_designated_branches_to_personal_fork_of_active_repository
   else
     git_push_verbosity_args="-v --progress"
   fi
-  for branch in "$branches_to_push"; do
+  for branch in $branches_to_push; do
     if [[ -n "$HOMEBREW_VERBOSE" ]]; then
-      echo "Switching to branch \`$branch\`…"
+      echo "Switching to branch \`$branch\`$ellipsis"
     fi
     git checkout "$branch"
     if [[ -n "$HOMEBREW_VERBOSE" ]]; then
-      echo "Pushing to your personal fork…"
+      echo "Pushing to your personal fork$ellipsis"
     fi
     git push "$git_push_verbosity_args" --force-with-lease "$git_remote_to_use"
   done
@@ -124,7 +129,7 @@ homebrew-update-forks() {
 
   ## Fail quickly with a concise message when the current working directory 
   ## doesn't exist:  
-  if ! [[ -d "$PWD"]]; then
+  if ! [[ -d "$PWD" ]]; then
     odie "The current working directory doesn't exist; cannot proceed.  "
   fi
 
@@ -139,9 +144,9 @@ homebrew-update-forks() {
         [[ "$option" = *d* ]] && HOMEBREW_DEBUG=1
         ;;
       *)
-       odie <<~EOS
-         This command doesn't accept any arguments yet.  Aborting…
-       EOS
+       odie <<EOS
+This command doesn't accept any arguments yet.  Aborting$ellipsis
+EOS
        ;;
     esac
   done
@@ -157,11 +162,11 @@ homebrew-update-forks() {
   fi
 
   if [[ "$HOMEBREW_SYSTEM" != "Macintosh" ]]; then
-    odie <<~EOS
-      This command has not been tested on non-Mac systems and is thus not gua-
-      ranteed to work on them.  Cowardly refusing to run since you're using such 
-      a non-Mac system.  (Aborting…)  
-    EOS
+    odie <<EOS
+This command has not been tested on non-Mac systems and is thus not guaranteed 
+to work on them.  Cowardly refusing to run since you're using such a non-Mac 
+system.  (Aborting$ellipsis)  
+EOS
   fi
 
   # Kill all processes in the process group created by starting this program 
@@ -172,17 +177,17 @@ homebrew-update-forks() {
   branches_to_push="master stable"
   push_designated_branches_to_personal_fork_of_active_repository || {
     if [[ -n "$HOMEBREW_VERBOSE" ]]; then
-      ofail "Unable to push \`$DIR\`!  Skipping…"
+      onoe "Unable to push \`$DIR\`!  Skipping$ellipsis"
     fi
     : # Don't do anything else.  
   }
   DIR=""
   branches_to_push=""
   for DIR in "$HOMEBREW_LIBRARY"/Taps/*/!(*update-forks); do
-    branches_to_use="master"
+    branches_to_push="master"
     push_designated_branches_to_personal_fork_of_active_repository || {
-      if [[ -n "HOMEBREW_VERBOSE" ]]; then
-        ofail "Unable to push \`$DIR\`!  Skipping…"
+      if [[ -n "$HOMEBREW_VERBOSE" ]]; then
+        onoe "Unable to push \`$DIR\`!  Skipping$ellipsis"
       fi
       continue
     }
