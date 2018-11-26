@@ -15,8 +15,9 @@
 #:
 #:    Warning:  Only tested on macOS.  
 
-# A single script-specific variable used even in the code that immediately fol-
-# lows it:  
+# Some initial setup:  
+shopt -s extglob
+
 ellipsis='\xE2\x80\xA6'
 
 # Code and function definitions taken from within # `brew`'s implementation and 
