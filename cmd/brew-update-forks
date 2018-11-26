@@ -187,3 +187,5 @@ homebrew-update-forks() {
     }
   done
 }
+
+homebrew-update-forks()
