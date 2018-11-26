@@ -169,11 +169,21 @@ homebrew-update-forks() {
 
   DIR="$HOMEBREW_REPOSITORY"
   branches_to_push="master stable"
-  push_designated_branches_to_personal_fork_of_active_repository
+  push_designated_branches_to_personal_fork_of_active_repository || {
+    if [[ -n "$HOMEBREW_VERBOSE" ]]; then
+      ofail "Unable to push \`$DIR\`!  Skipping…"
+    fi
+    : # Don't do anything else.  
+  }
   DIR=""
   branches_to_push=""
   for DIR in "$HOMEBREW_LIBRARY"/Taps/*/!(*update-forks); do
     branches_to_use="master"
-    push_designated_branches_to_personal_fork_of_active_repository
+    push_designated_branches_to_personal_fork_of_active_repository || {
+      if [[ -n "HOMEBREW_VERBOSE" ]]; then
+        ofail "Unable to push \`$DIR\`!  Skipping…"
+      fi
+      continue
+    }
   done
 }
