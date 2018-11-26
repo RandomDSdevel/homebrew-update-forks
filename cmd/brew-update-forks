@@ -87,11 +87,11 @@ push_designated_branches_to_personal_fork_of_active_repository
   local git_remote_to_use
   local git_push_verbosity_args
 
-  [[ -d "$DIR/.git" ]] || continue
+  [[ -d "$DIR/.git" ]] || return -1
   if [[ -n "$HOMEBREW_VERBOSE" ]]; then
     echo "Changing to \`$DIR\`…"
   fi
-  cd "$DIR" || continue
+  cd "$DIR" || return -1
   check_number_of_git_remotes || {
                                    if [[ -n "$HOMEBREW_VERBOSE" ]]; then
                                      echo "Skipping…"
