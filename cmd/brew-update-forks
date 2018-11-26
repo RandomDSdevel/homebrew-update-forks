@@ -98,7 +98,9 @@ push_designated_branches_to_personal_fork_of_active_repository
       echo "Switching to branch \`$branch\`…"
     fi
     git checkout "$branch"
-    echo "Pushing to your personal fork…"
+    if [[ -n "$HOMEBREW_VERBOSE" ]]
+      echo "Pushing to your personal fork…"
+    fi
     git push "$git_push_verbosity_args" --force-with-lease "$git_remote_to_use"
   done
 }
