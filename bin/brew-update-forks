@@ -55,12 +55,6 @@ git() {
   fi
   "$GIT_EXECUTABLE" "$@"
 }
-
-## Fail quickly with a concise message when the current working directory does-
-## n't exist:  
-if ! [[ -d "$PWD"]]; then
-  odie "The current working directory doesn't exist; cannot proceed.  "
-fi
 # End of copied code and function definitions.  
 
 # Script-local functions…
@@ -110,6 +104,12 @@ push_designated_branches_to_personal_fork_of_active_repository
 homebrew-update-forks() {
   local DIR
   local branches_to_push
+
+  ## Fail quickly with a concise message when the current working directory 
+  ## doesn't exist:  
+  if ! [[ -d "$PWD"]]; then
+    odie "The current working directory doesn't exist; cannot proceed.  "
+  fi
 
   for option in "$@"; do
     case "$option" in
