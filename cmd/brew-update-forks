@@ -96,7 +96,7 @@ push_designated_branches_to_personal_fork_of_active_repository
                                    if [[ -n "$HOMEBREW_VERBOSE" ]]; then
                                      echo "Skipping…"
                                    fi
-                                   return
+                                   return -1
                                  }
   git_remote_to_use="$(git remote | grep --invert-match "origin")"
   if [[ -n "$QUIET_ARGS" ]]; then
