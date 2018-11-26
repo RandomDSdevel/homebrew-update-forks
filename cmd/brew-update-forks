@@ -58,7 +58,9 @@ git() {
 
 # Script-local functions…
 check_number_of_git_remotes() {
-  echo "Checking for the existence of a single non-\`origin\` remote…"
+  if [[ -n "$HOMEBREW_VERBOSE" ]]
+    echo "Checking for the existence of a single non-\`origin\` remote…"
+  fi
   local number_of_git_remotes="$(git remote | wc -l)"
   local status
   if [[ number_of_git_remotes -lt 2 ]]; then
