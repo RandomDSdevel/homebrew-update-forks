@@ -94,7 +94,9 @@ push_designated_branches_to_personal_fork_of_active_repository
     git_push_verbosity_args="-v --progress"
   fi
   for branch in "$branches_to_push"; do
-    echo "Switching to branch \`$branch\`…"
+    if [[ -n "$HOMEBREW_VERBOSE" ]]
+      echo "Switching to branch \`$branch\`…"
+    fi
     git checkout "$branch"
     echo "Pushing to your personal fork…"
     git push "$git_push_verbosity_args" --force-with-lease "$git_remote_to_use"
