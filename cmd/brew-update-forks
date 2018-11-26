@@ -58,13 +58,13 @@ git() {
 
 # Script-local functions…
 check_number_of_git_remotes() {
-  if [[ -n "$HOMEBREW_VERBOSE" ]]
+  if [[ -n "$HOMEBREW_VERBOSE" ]]; then
     echo "Checking for the existence of a single non-\`origin\` remote…"
   fi
   local number_of_git_remotes="$(git remote | wc -l)"
   local status
   if [[ number_of_git_remotes -lt 2 ]]; then
-    if [[ -n "$HOMEBREW_VERBOSE" ]]
+    if [[ -n "$HOMEBREW_VERBOSE" ]]; then
       onoe <<~EOS
         No remotes other than \`origin\` to push to!  
       EOS
@@ -72,7 +72,7 @@ check_number_of_git_remotes() {
     status=-1
   fi
   if [[ number_of_git_remotes -gt 2 ]]; then
-    if [[ -n "$HOMEBREW_VERBOSE" ]]
+    if [[ -n "$HOMEBREW_VERBOSE" ]]; then
       onoe <<~EOS
         The choice of non-\`origin\` remote is ambiguous due to the presence of 
         too many remotes.  
@@ -88,7 +88,7 @@ push_designated_branches_to_personal_fork_of_active_repository
   local git_push_verbosity_args
 
   [[ -d "$DIR/.git" ]] || continue
-  if [[ -n "$HOMEBREW_VERBOSE" ]]
+  if [[ -n "$HOMEBREW_VERBOSE" ]]; then
     echo "Changing to \`$DIR\`…"
   fi
   cd "$DIR" || continue
@@ -105,11 +105,11 @@ push_designated_branches_to_personal_fork_of_active_repository
     git_push_verbosity_args="-v --progress"
   fi
   for branch in "$branches_to_push"; do
-    if [[ -n "$HOMEBREW_VERBOSE" ]]
+    if [[ -n "$HOMEBREW_VERBOSE" ]]; then
       echo "Switching to branch \`$branch\`…"
     fi
     git checkout "$branch"
-    if [[ -n "$HOMEBREW_VERBOSE" ]]
+    if [[ -n "$HOMEBREW_VERBOSE" ]]; then
       echo "Pushing to your personal fork…"
     fi
     git push "$git_push_verbosity_args" --force-with-lease "$git_remote_to_use"
