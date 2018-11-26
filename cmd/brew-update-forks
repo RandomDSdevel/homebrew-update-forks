@@ -88,7 +88,7 @@ push_designated_branches_to_personal_fork_of_active_repository
   cd "$DIR" || continue
   check_number_of_git_remotes
   git_remote_to_use="$(git remote | grep --invert-match "origin")"
-  if [[ -n $QUIET_ARGS ]]; then
+  if [[ -n "$QUIET_ARGS" ]]; then
     git_push_verbosity_args="$QUIET_ARGS"
   else
     git_push_verbosity_args="-v --progress"
