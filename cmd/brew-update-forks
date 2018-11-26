@@ -72,10 +72,12 @@ check_number_of_git_remotes() {
     status=-1
   fi
   if [[ number_of_git_remotes -gt 2 ]]; then
-    onoe <<~EOS
-      The choice of non-\`origin\` remote is ambiguous due to the presence of 
-      too many remotes.  Skipping…
-    EOS
+    if [[ -n "$HOMEBREW_VERBOSE" ]]
+      onoe <<~EOS
+        The choice of non-\`origin\` remote is ambiguous due to the presence of 
+        too many remotes.  Skipping…
+      EOS
+    fi
     status=-2
   fi
   return $status
