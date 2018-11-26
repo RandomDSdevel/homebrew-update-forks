@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 #:  * `update-forks`:  
 #:    Push the versions of Homebrew and all installed taps hosted locally on 
 #:    your machine to your personal GitHub forks of their repositories using 
@@ -13,8 +14,6 @@
 #:                  `origin` per repository.  
 #:
 #:    Warning:  Only tested on macOS.  
-
-#!/usr/bin/env bash
 
 # Code and function definitions taken from within # `brew`'s implementation and 
 # adapted for use in this script begin(s) here.  
