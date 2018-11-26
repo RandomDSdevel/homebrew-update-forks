@@ -66,7 +66,7 @@ check_number_of_git_remotes() {
   if [[ number_of_git_remotes -lt 2 ]]; then
     if [[ -n "$HOMEBREW_VERBOSE" ]]
       onoe <<~EOS
-        No remotes other than \`origin\` to push to!  Skipping…
+        No remotes other than \`origin\` to push to!  
       EOS
     fi
     status=-1
@@ -75,12 +75,12 @@ check_number_of_git_remotes() {
     if [[ -n "$HOMEBREW_VERBOSE" ]]
       onoe <<~EOS
         The choice of non-\`origin\` remote is ambiguous due to the presence of 
-        too many remotes.  Skipping…
+        too many remotes.  
       EOS
     fi
     status=-2
   fi
-  return $status
+  return "$status"
 }
 
 push_designated_branches_to_personal_fork_of_active_repository
@@ -92,7 +92,12 @@ push_designated_branches_to_personal_fork_of_active_repository
     echo "Changing to \`$DIR\`…"
   fi
   cd "$DIR" || continue
-  check_number_of_git_remotes
+  check_number_of_git_remotes || {
+                                   if [[ -n "$HOMEBREW_VERBOSE" ]]; then
+                                     echo "Skipping…"
+                                   fi
+                                   return
+                                 }
   git_remote_to_use="$(git remote | grep --invert-match "origin")"
   if [[ -n "$QUIET_ARGS" ]]; then
     git_push_verbosity_args="$QUIET_ARGS"
