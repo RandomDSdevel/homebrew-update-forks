@@ -1,0 +1,163 @@
+#:  * `update-forks`:  
+#:    Push the versions of Homebrew and all installed taps hosted locally on 
+#:    your machine to your personal GitHub forks of their repositories using 
+#:    `git`(1).  
+#:
+#:    Prerequisites:  
+#:
+#:     - Requires a valid Homebrew installation.  
+#:     - A recent invocation of `brew update` which ran to completion.  (Other-
+#:       wise, the commits you're pushing won't be the latest ones.)  
+#:
+#:    Limitations:  Currently only supports having one remote other than 
+#:                  `origin` per repository.  
+#:
+#:    Warning:  Only tested on macOS.  
+
+#!/usr/bin/env bash
+
+# Code and function definitions taken from within # `brew`'s implementation and 
+# adapted for use in this script begin(s) here.  
+set +o posix
+
+onoe() {
+  if [[ -t 2 ]] # Check to see whether or not `stderr` is a TTY.  
+  then
+    echo -ne "\\033[4;31mError\\033[0m:  " >&2 # Highlight 'Error' with un-
+                                               # derlining and a red color.  
+  else
+    echo -n "Error:  " >&2
+  fi
+  if [[ $0 -eq 0 ]]
+  then
+    cat >&2
+  else
+    echo "$*" >&2
+  fi
+}
+
+odie() {
+  onoe "$@"
+  exit 1
+}
+
+safe_cd() {
+  cd "$@" >/dev/null || odie <<~EOS
+    Failed to change directories to \`$*\`!  Aborting…
+  EOS
+}
+
+## Cache where Git's executable lives to speed things up when using Git 
+## repeatedly by querying Homebrew's Git shim for its path.  
+git() {
+  if [[ -z "$GIT_EXECUTABLE" ]]; then
+    GIT_EXECUTABLE="$("HOMEBREW_LIBRARY_PATH/Homebrew/shims/scm/git" --homebrew=print-path)"
+  fi
+  "$GIT_EXECUTABLE" "$@"
+}
+
+## Fail quickly with a concise message when the current working directory does-
+## n't exist:  
+if ! [[ -d "$PWD"]]; then
+  odie "The current working directory doesn't exist; cannot proceed.  "
+fi
+# End of copied code and function definitions.  
+
+# Script-local functions…
+check_number_of_git_remotes() {
+  echo "Checking for the existence of a single non-\`origin\` remote…"
+  local number_of_git_remotes="$(git remote | wc -l)"
+  local status
+  if [[ number_of_git_remotes -lt 2 ]]; then
+    onoe <<~EOS
+      No remotes other than \`origin\` to push to!  Skipping…
+    EOS
+    status=-1
+  fi
+  if [[ number_of_git_remotes -gt 2 ]]; then
+    onoe <<~EOS
+      The choice of non-\`origin\` remote is ambiguous due to the presence of 
+      too many remotes.  Skipping…
+    EOS
+    status=-2
+  fi
+  return $status
+}
+
+push_designated_branches_to_personal_fork_of_active_repository
+  local git_remote_to_use
+  local git_push_verbosity_args
+
+  [[ -d "$DIR/.git" ]] || continue
+  echo "Changing to \`$DIR\`…"
+  cd "$DIR" || continue
+  check_number_of_git_remotes
+  git_remote_to_use="$(git remote | grep --invert-match "origin")"
+  if [[ -n $QUIET_ARGS ]]; then
+    git_push_verbosity_args="$QUIET_ARGS"
+  else
+    git_push_verbosity_args="-v --progress"
+  fi
+  for branch in "$branches_to_push"; do
+    echo "Switching to branch \`$branch\`…"
+    git checkout "$branch"
+    echo "Pushing to your personal fork…"
+    git push "$git_push_verbosity_args" --force-with-lease "$git_remote_to_use"
+  done
+}
+
+# Main logic:  
+homebrew-update-forks() {
+  local DIR
+  local branches_to_push
+
+  for option in "$@"; do
+    case "$option" in
+      -\?|-h|--help|--usage) brew help update-forks; exit $? ;;
+      --verbose)             HOMEBREW_VERBOSE=1 ;;
+      --debug)               HOMEBREW_DEBUG=1 ;;
+      --*)                   ;;
+      -*)
+        [[ "$option" = *v* ]] && HOMEBREW_VERBOSE=1
+        [[ "$option" = *d* ]] && HOMEBREW_DEBUG=1
+        ;;
+      *)
+       odie <<~EOS
+         This command doesn't accept any arguments yet.  Aborting…
+       EOS
+       ;;
+    esac
+  done
+
+  if [[ -n "$HOMEBREW_DEBUG" ]]; then
+    set -x
+  fi
+
+  if [[ -z "$HOMEBREW_VERBOSE" ]]; then
+    QUIET_ARGS=(-q)
+  else
+    QUIET_ARGS=()
+  fi
+
+  if [[ "$HOMEBREW_SYSTEM" != "Macintosh" ]]; then
+    odie <<~EOS
+      This command has not been tested on non-Mac systems and is thus not gua-
+      ranteed to work on them.  Cowardly refusing to run since you're using such 
+      a non-Mac system.  (Aborting…)  
+    EOS
+  fi
+
+  # Kill all processes in the process group created by starting this program 
+  # upon receiving an interrupt:  
+  trap '{ /usr/bin/pkill -P $$; wait; exit 130; }' SIGINT
+
+  DIR="$HOMEBREW_REPOSITORY"
+  branches_to_push="master stable"
+  push_designated_branches_to_personal_fork_of_active_repository
+  DIR=""
+  branches_to_push=""
+  for DIR in "$HOMEBREW_LIBRARY"/Taps/*/!(*update-forks); do
+    branches_to_use="master"
+    push_designated_branches_to_personal_fork_of_active_repository
+  done
+}
