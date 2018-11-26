@@ -64,9 +64,11 @@ check_number_of_git_remotes() {
   local number_of_git_remotes="$(git remote | wc -l)"
   local status
   if [[ number_of_git_remotes -lt 2 ]]; then
-    onoe <<~EOS
-      No remotes other than \`origin\` to push to!  Skipping…
-    EOS
+    if [[ -n "$HOMEBREW_VERBOSE" ]]
+      onoe <<~EOS
+        No remotes other than \`origin\` to push to!  Skipping…
+      EOS
+    fi
     status=-1
   fi
   if [[ number_of_git_remotes -gt 2 ]]; then
