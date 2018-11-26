@@ -82,7 +82,9 @@ push_designated_branches_to_personal_fork_of_active_repository
   local git_push_verbosity_args
 
   [[ -d "$DIR/.git" ]] || continue
-  echo "Changing to \`$DIR\`…"
+  if [[ -n "$HOMEBREW_VERBOSE" ]]
+    echo "Changing to \`$DIR\`…"
+  fi
   cd "$DIR" || continue
   check_number_of_git_remotes
   git_remote_to_use="$(git remote | grep --invert-match "origin")"
