@@ -48,7 +48,7 @@ odie() {
 
 safe_cd() {
   cd "$@" >/dev/null || odie <<EOS
-Failed to change directories to \`$*\`!  Aborting
+Failed to change directories to \`$*\`!  Aborting$ellispsis
 EOS
 }
 
