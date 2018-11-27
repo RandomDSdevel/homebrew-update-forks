@@ -1,8 +1,16 @@
 #!/usr/bin/env bash
-#:  * `update-forks`:  
+#:  * `update-forks [-v|--verbose] [-d|-debug]`:  
 #:    Push the versions of Homebrew and all installed taps hosted locally on 
 #:    your machine to your personal GitHub forks of their repositories using 
 #:    `git`(1).  
+#:
+#:    If `--verbose` (or its short form, `-v`,) is passed, give the user feed-
+#:    back on how the underlying filesystem and Git operations are progressing.  
+#:
+#:    If `--debug` (or its short form, `-d`,) is passed, also output any availa-
+#:    lable debugging information.  (Currently, only the commands run during 
+#:    this one's execution are printed, but additional troubleshooting diagnos-
+#:    tics may be added later.)  
 #:
 #:    Prerequisites:  
 #:
