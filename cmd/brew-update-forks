@@ -184,7 +184,14 @@ EOS
   }
   DIR=""
   branches_to_push=""
-  for DIR in "$HOMEBREW_LIBRARY"/Taps/*/!(*update-forks); do
+  # `DIR` won't contain any backslashes, so ignore 'SC2162:  read without -r 
+  # will mangle backslashes.'  
+  #
+  # shellcheck disable=SC2162
+  find "$HOMEBREW_LIBRARY_PATH"/Taps ! -name "*update-forks" \
+                                     ! -name ".DS_Store" \
+                                     -depth 2 \
+                                     -print | while read DIR; do
     branches_to_push="master"
     push_designated_branches_to_personal_fork_of_active_repository || {
       if [[ -n "$HOMEBREW_VERBOSE" ]]; then
