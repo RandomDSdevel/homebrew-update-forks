@@ -195,7 +195,7 @@ EOS
   # will mangle backslashes.'  
   #
   # shellcheck disable=SC2162
-  find "$HOMEBREW_LIBRARY_PATH"/Taps ! -name "*update-forks" \
+  find "$HOMEBREW_LIBRARY"/Taps ! -name "*update-forks" \
                                      ! -name ".DS_Store" \
                                      -depth 2 \
                                      -print | while read DIR; do
