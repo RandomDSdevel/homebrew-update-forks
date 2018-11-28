@@ -63,7 +63,7 @@ EOS
 ## repeatedly by querying Homebrew's Git shim for its path.  
 git() {
   if [[ -z "$GIT_EXECUTABLE" ]]; then
-    GIT_EXECUTABLE="$("HOMEBREW_LIBRARY_PATH/Homebrew/shims/scm/git" --homebrew=print-path)"
+    GIT_EXECUTABLE="$("$HOMEBREW_LIBRARY/Homebrew/shims/scm/git" --homebrew=print-path)"
   fi
   "$GIT_EXECUTABLE" "$@"
 }
